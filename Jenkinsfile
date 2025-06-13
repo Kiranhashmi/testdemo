@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven'  // Replace this with the exact name from Jenkins > Global Tool Config
+        maven 'Maven'  // ✅ Use exactly what you wrote in Jenkins (case-sensitive)
     }
 
     parameters {
@@ -18,7 +18,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo '🔨 Building Project'
-                echo "Using Maven Version: ${tool 'Maven 3.9'}"
+                echo "Using Maven version ${tool 'Maven'}"
                 echo "Building version ${NEW_VERSION}"
                 bat 'mvn clean install'
             }
@@ -38,7 +38,6 @@ pipeline {
             steps {
                 echo '🚀 Deploying Project'
                 echo "Deploying version ${params.VERSION}"
-                // Simulate deployment step
                 bat 'echo Deploying version ${params.VERSION}'
             }
         }
