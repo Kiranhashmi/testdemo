@@ -1,61 +1,55 @@
-flag=true
-
 pipeline {
     agent any
-	parameters {
-		//these are types of parameters
-		string(name: 'VERSION',defaultValue:'',description:'version to deploy on prod')
-		choice (name: 'VERSION',choices:['1.1.0','1.2.0','1.3.0'],description:'')
-		booleanParam(name:'executeTests',defaultValue: true, description:'')
-	}
+
+    tools {
+        maven 'Maven'  // Replace this with the exact name from Jenkins > Global Tool Config
+    }
+
+    parameters {
+        choice(name: 'VERSION', choices: ['1.1.0', '1.2.0', '1.3.0'], description: 'Version to deploy')
+        booleanParam(name: 'executeTests', defaultValue: true, description: 'Run test stage?')
+    }
+
     environment {
-	//variables defined here can be used by any stage
-	NEW_VERSION = '1.3.0'
-
-	    
+        NEW_VERSION = '1.3.0'
     }
+
     stages {
-        stage('build') {
+        stage('Build') {
             steps {
-                echo 'Building Project'
-		//using environment variable
-		//To output the value of variable in string use " "
-		echo "Building version ${NEW_VERSION}"
-		
-		echo 'successfully installed npm'
+                echo '🔨 Building Project'
+                echo "Using Maven Version: ${tool 'Maven 3.9'}"
+                echo "Building version ${NEW_VERSION}"
+                bat 'mvn clean install'
             }
         }
 
-	 stage('test') {
-		when {
-			expression {
-				params.executeTests
-			} 
-		  }    
+        stage('Test') {
+            when {
+                expression { params.executeTests }
+            }
             steps {
-		  
-                echo 'Testing Project'
+                echo '🧪 Running Tests'
+                bat 'mvn test'
             }
         }
-	stage('deploy') {
+
+        stage('Deploy') {
             steps {
-                echo 'Deploying Project'
-		echo "DEploying version ${params.VERSION}"
+                echo '🚀 Deploying Project'
+                echo "Deploying version ${params.VERSION}"
+                // Simulate deployment step
+                bat 'echo Deploying version ${params.VERSION}'
             }
-        }	    
-   
+        }
     }
-	post {
-	// the conditions here will execute after the build is done
-	
-	always {
-		   //this action will happen always regardless of the result of build   
-		   echo 'Post build condition running'
-		}
-	failure {
-		 //this action will happen only if the build has failed 
-		  echo 'Post Action if Build Failed'
-			
-		}	
-	}
+
+    post {
+        always {
+            echo '📦 Post build condition running'
+        }
+        failure {
+            echo '❌ Post action: Build Failed'
+        }
+    }
 }
